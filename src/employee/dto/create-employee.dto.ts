@@ -1,5 +1,15 @@
+import {IsNotEmpty, IsNumber} from "class-validator";
+
 export class CreateEmployeeDto{
-    readonly name: string
+    @IsNotEmpty()
+    readonly firstName: string
+
+    @IsNotEmpty()
     readonly surname: string
+
+    @IsNotEmpty()
     readonly post: string
+
+    @IsNumber()
+    readonly departmentId: number;
 }
