@@ -1,4 +1,5 @@
-import { Column, Table, Model} from "sequelize-typescript";
+import { Column, Table, Model, HasMany, CreatedAt, HasOne } from "sequelize-typescript";
+import { EmployeeModel } from "../../employee/models/employee.model";
 
 
 @Table
@@ -10,8 +11,13 @@ export class DepartmentModel extends Model{
     headId: number;
 
     @Column
-    createdDate: Date;
+    @CreatedAt
+    creationDate: Date;
 
     @Column
     departmentInfo: string;
+
+
+    @HasMany(() => EmployeeModel)
+    employees: EmployeeModel[];
 }

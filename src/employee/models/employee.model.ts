@@ -1,7 +1,27 @@
-import { Column, Table, Model} from "sequelize-typescript";
+import {
+    Column,
+    Table,
+    Model,
+    HasMany,
+    HasOne,
+    BelongsTo,
+    AutoIncrement,
+    Unique,
+    ForeignKey
+} from "sequelize-typescript";
+import { DepartmentModel } from "../../department/models/department.model";
+import { DepartmentService } from "../../department/department.service";
+import { DepartmentModule } from "../../department/department.module";
 
 @Table
 export class EmployeeModel extends Model{
+
+    @Column
+    @AutoIncrement
+    @Unique
+    @ForeignKey(() => DepartmentModel)
+    id: number;
+
     @Column
     firstName: string
 
@@ -11,6 +31,6 @@ export class EmployeeModel extends Model{
     @Column
     post: string
 
-    @Column
+    @BelongsTo(() => DepartmentModel,'id')
     departmentId: number;
 }

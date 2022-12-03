@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post} from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Put } from "@nestjs/common";
 import {CreateEmployeeDto} from "./dto/create-employee.dto";
 import {EmployeeService} from "./employee.service.dto";
 
@@ -28,4 +28,16 @@ export class EmployeeController{
     getOneEmployee(@Param('id') id: string) {
         return this.employeeService.getById(id);
     }
+
+    @Patch("sort=asc")
+    sortedEmployeesAsc(){
+        return this.employeeService.filterAsc();
+    }
+
+    @Patch("sort=desc")
+    sortedEmployeesDesc(){
+        return this.employeeService.filterDesc();
+    }
+
+
 }

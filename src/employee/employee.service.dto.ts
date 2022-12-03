@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
 import { EmployeeModel } from "./models/employee.model";
 import { CreateEmployeeDto } from "./dto/create-employee.dto";
+import sequelize from "sequelize";
 
 
 @Injectable()
@@ -26,6 +27,7 @@ export class EmployeeService{
 
     async getById(id: string): Promise<EmployeeModel> {
         return await this.Employee.findOne({
+
             where:{
                 id: id
             }
@@ -35,5 +37,24 @@ export class EmployeeService{
     async remove(id: string): Promise<void> {
         const employee = await this.getById(id);
         await employee.destroy();
+    }
+
+    async filterAsc(): Promise<EmployeeModel[]> {
+        return await this.Employee.findAll({
+            order: [["surname", 'ASC']]
+        })
+    }
+
+    async filterDesc(): Promise<EmployeeModel[]> {
+        return await this.Employee.findAll({
+            order: [["surname", 'DESC']]
+        })
+    }
+
+    async lastEmployees(): Promise<EmployeeModel[]>{
+        return await this.Employee.findAll({
+            order: [['createdAt', 'DESC']],
+            limit: 5
+        })
     }
 }

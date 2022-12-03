@@ -12,13 +12,15 @@ export class DepartmentService{
         return this.Department.findAll();
     }
 
-     create(departmentDto:CreateDepartmentDto): Promise<DepartmentModel>{
+
+    async create(departmentDto:CreateDepartmentDto): Promise<DepartmentModel>{
         const newDepartment = new DepartmentModel();
 
         newDepartment.title = departmentDto.title;
         newDepartment.departmentInfo = departmentDto.departmentInfo;
         newDepartment.headId = departmentDto.headId;
-        newDepartment.createdDate = departmentDto.createdDate;
+        newDepartment.creationDate = departmentDto.createdDate;
+       // newDepartment.employees=departmentDto.employees;
 
         return newDepartment.save();
     }
@@ -35,6 +37,5 @@ export class DepartmentService{
         const department = await this.getById(id);
         await department.destroy();
     }
-
 
 }

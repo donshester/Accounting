@@ -1,4 +1,5 @@
 import {IsDate, IsNotEmpty, IsNumber} from "class-validator";
+import { EmployeeModel } from "../../employee/models/employee.model";
 
 export class CreateDepartmentDto{
 
@@ -13,4 +14,6 @@ export class CreateDepartmentDto{
     readonly createdDate: Date;
 
     readonly departmentInfo: string;
+
+    //readonly employees: EmployeeModel[];
 }

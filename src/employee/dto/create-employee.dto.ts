@@ -1,4 +1,4 @@
-import {IsNotEmpty, IsNumber} from "class-validator";
+import { IsDate, IsNotEmpty, IsNumber } from "class-validator";
 
 export class CreateEmployeeDto{
     @IsNotEmpty()
@@ -12,4 +12,5 @@ export class CreateEmployeeDto{
 
     @IsNumber()
     readonly departmentId: number;
+
 }

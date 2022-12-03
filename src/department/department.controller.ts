@@ -19,7 +19,6 @@ export class DepartmentController{
         return this.departmentService.create(createDepartment);
     }
 
-
     @Delete(':id')
     deleteDepartment(@Param('id') id: string) {
         return this.departmentService.remove(id);
