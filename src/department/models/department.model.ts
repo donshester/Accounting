@@ -7,25 +7,33 @@ import {
     HasOne,
     AutoIncrement,
     Unique,
-    PrimaryKey, BelongsTo
+    PrimaryKey, BelongsTo, DataType
 } from "sequelize-typescript";
 
 import { EmployeeModel } from "../../employee/models/employee.model";
 
 @Table
-export class DepartmentModel extends Model{
+export class DepartmentModel extends Model<DepartmentModel>{
 
     @AutoIncrement
     @Unique
     @PrimaryKey
-    @Column
-    id: number;
+    @Column({
+        type:DataType.STRING,
+        allowNull: false
+    })
+    id: string;
 
-    @Column
+    @Column({
+        type:DataType.STRING,
+        allowNull: false
+    })
     title: string;
 
     @Unique
-    @Column
+    @Column({
+        allowNull: false
+    })
     headId: number;
 
     @Column
@@ -35,6 +43,6 @@ export class DepartmentModel extends Model{
     @Column
     departmentInfo: string;
 
-    @HasMany(() => EmployeeModel, "id")
-    employees?: EmployeeModel[];
+    @HasMany(() => EmployeeModel, 'id')
+    employees?: string[];
 }

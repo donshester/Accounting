@@ -1,17 +1,18 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
 import { EmployeeModel } from "./models/employee.model";
 import { CreateEmployeeDto } from "./dto/create-employee.dto";
 import sequelize from "sequelize";
+import { EMPLOYEE_REPOSITORY } from "../core/constants";
 
 
 @Injectable()
 export class EmployeeService{
-    constructor(@InjectModel(EmployeeModel) private Employee: typeof EmployeeModel) {
+    constructor(@Inject(EMPLOYEE_REPOSITORY) private Employee: typeof EmployeeModel) {
     }
 
     async findAll(): Promise<EmployeeModel[]>{
-        return this.Employee.findAll();
+        return this.Employee.findAll<EmployeeModel>();
     }
 
     create(employeeDto:CreateEmployeeDto): Promise<EmployeeModel> {
@@ -27,7 +28,7 @@ export class EmployeeService{
     }
 
     async getById(id: number): Promise<EmployeeModel> {
-        return await this.Employee.findOne({
+        return await this.Employee.findOne<EmployeeModel>({
 
             where:{
                 id: id
@@ -47,13 +48,13 @@ export class EmployeeService{
     }
 
     async filterDesc(): Promise<EmployeeModel[]> {
-        return await this.Employee.findAll({
+        return await this.Employee.findAll<EmployeeModel>({
             order: [["surname", 'DESC']]
         })
     }
 
     async lastEmployees(): Promise<EmployeeModel[]>{
-        return await this.Employee.findAll({
+        return await this.Employee.findAll<EmployeeModel>({
             order: [['createdAt', 'DESC']],
             limit: 5
         })

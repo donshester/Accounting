@@ -11,10 +11,12 @@ export class CreateEmployeeDto{
     @IsNotEmpty()
     readonly post: string
 
+    readonly department: DepartmentModel;
+
     @IsNumber()
-    readonly departmentId: DepartmentModel;
+    readonly departmentId: string;
 
     @IsNumber()
     @IsNotEmpty()
-    readonly id: number;
+    readonly id: string;
 }

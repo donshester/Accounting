@@ -7,18 +7,15 @@ import {ConfigModule} from "@nestjs/config";
 import {SequelizeConfigService} from "./config/sequelizeConfig.service";
 import {databaseConfig} from "./config/configuration";
 import {EmployeeModule} from "./employee/employee.module";
+import { DatabaseModule } from './core/database/database.module';
 
 @Module({
   imports: [
-    SequelizeModule.forRootAsync({
-      imports: [ConfigModule],
-      useClass: SequelizeConfigService,
-    }),
-    ConfigModule.forRoot({
-      load: [databaseConfig],
-    }),
+    ConfigModule.forRoot({ isGlobal: true }),
+    DatabaseModule,
     DepartmentModule,
-    EmployeeModule
+    EmployeeModule,
+
   ],
   controllers: [AppController],
   providers: [AppService],

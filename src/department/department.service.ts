@@ -1,16 +1,17 @@
-import {Injectable} from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import {DepartmentModel} from "./models/department.model";
 import {InjectModel} from "@nestjs/sequelize";
 import {CreateDepartmentDto} from "./dto/create-department.dto";
 import sequelize from "sequelize";
+import { DEPARTMENT_REPOSITORY } from "../core/constants";
 
 @Injectable()
 export class DepartmentService{
-    constructor(@InjectModel(DepartmentModel) private Department: typeof DepartmentModel) {
+    constructor(@Inject(DEPARTMENT_REPOSITORY) private readonly Department: typeof DepartmentModel) {
     }
 
     async findAll(): Promise<DepartmentModel[]>{
-        return this.Department.findAll();
+        return this.Department.findAll<DepartmentModel>();
     }
 
 
@@ -27,7 +28,7 @@ export class DepartmentService{
     }
 
     async getById(id: number): Promise<DepartmentModel> {
-        return await this.Department.findOne({
+        return await this.Department.findOne<DepartmentModel>({
             where:{
                 id: id
             }
@@ -35,7 +36,7 @@ export class DepartmentService{
     }
 
     async countEmployees(id: number): Promise<DepartmentModel> {
-        return await this.Department.findOne({
+        return await this.Department.findOne<DepartmentModel>({
             attributes: [[sequelize.fn('COUNT', sequelize.col('employees')), 'n_employees']],
             where:{
                 id: id
