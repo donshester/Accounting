@@ -1,4 +1,5 @@
 import { IsDate, IsNotEmpty, IsNumber } from "class-validator";
+import { DepartmentModel } from "../../department/models/department.model";
 
 export class CreateEmployeeDto{
     @IsNotEmpty()
@@ -11,6 +12,9 @@ export class CreateEmployeeDto{
     readonly post: string
 
     @IsNumber()
-    readonly departmentId: number;
+    readonly departmentId: DepartmentModel;
 
+    @IsNumber()
+    @IsNotEmpty()
+    readonly id: number;
 }

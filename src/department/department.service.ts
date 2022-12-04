@@ -2,6 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {DepartmentModel} from "./models/department.model";
 import {InjectModel} from "@nestjs/sequelize";
 import {CreateDepartmentDto} from "./dto/create-department.dto";
+import sequelize from "sequelize";
 
 @Injectable()
 export class DepartmentService{
@@ -20,12 +21,12 @@ export class DepartmentService{
         newDepartment.departmentInfo = departmentDto.departmentInfo;
         newDepartment.headId = departmentDto.headId;
         newDepartment.creationDate = departmentDto.createdDate;
-       // newDepartment.employees=departmentDto.employees;
+        newDepartment.employees=departmentDto.employees;
 
         return newDepartment.save();
     }
 
-    async getById(id: string): Promise<DepartmentModel> {
+    async getById(id: number): Promise<DepartmentModel> {
         return await this.Department.findOne({
             where:{
                 id: id
@@ -33,7 +34,16 @@ export class DepartmentService{
         });
     }
 
-    async remove(id: string): Promise<void> {
+    async countEmployees(id: number): Promise<DepartmentModel> {
+        return await this.Department.findOne({
+            attributes: [[sequelize.fn('COUNT', sequelize.col('employees')), 'n_employees']],
+            where:{
+                id: id
+            }
+        })
+    }
+
+    async remove(id: number): Promise<void> {
         const department = await this.getById(id);
         await department.destroy();
     }

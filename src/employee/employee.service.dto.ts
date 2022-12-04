@@ -21,11 +21,12 @@ export class EmployeeService{
         newEmployee.post = employeeDto.post;
         newEmployee.surname = employeeDto.surname;
         newEmployee.firstName = employeeDto.firstName;
+        newEmployee.id=employeeDto.id;
 
         return newEmployee.save();
     }
 
-    async getById(id: string): Promise<EmployeeModel> {
+    async getById(id: number): Promise<EmployeeModel> {
         return await this.Employee.findOne({
 
             where:{
@@ -34,7 +35,7 @@ export class EmployeeService{
         });
     }
 
-    async remove(id: string): Promise<void> {
+    async remove(id: number): Promise<void> {
         const employee = await this.getById(id);
         await employee.destroy();
     }

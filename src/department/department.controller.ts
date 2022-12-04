@@ -20,12 +20,12 @@ export class DepartmentController{
     }
 
     @Delete(':id')
-    deleteDepartment(@Param('id') id: string) {
+    deleteDepartment(@Param('id') id: number) {
         return this.departmentService.remove(id);
     }
 
     @Get(':id')
-    getOneDepartment(@Param('id') id: string) {
+    getOneDepartment(@Param('id') id: number) {
         return this.departmentService.getById(id);
     }
 

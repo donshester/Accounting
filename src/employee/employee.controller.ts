@@ -20,12 +20,12 @@ export class EmployeeController{
 
 
     @Delete(':id')
-    deleteEmployee(@Param('id') id: string) {
+    deleteEmployee(@Param('id') id: number) {
         return this.employeeService.remove(id);
     }
 
     @Get(':id')
-    getOneEmployee(@Param('id') id: string) {
+    getOneEmployee(@Param('id') id: number) {
         return this.employeeService.getById(id);
     }
 

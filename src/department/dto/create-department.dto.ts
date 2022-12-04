@@ -3,6 +3,7 @@ import { EmployeeModel } from "../../employee/models/employee.model";
 
 export class CreateDepartmentDto{
 
+    readonly id:number;
 
     @IsNotEmpty()
     readonly title: string;
@@ -15,5 +16,5 @@ export class CreateDepartmentDto{
 
     readonly departmentInfo: string;
 
-    //readonly employees: EmployeeModel[];
+    readonly employees: EmployeeModel[];
 }

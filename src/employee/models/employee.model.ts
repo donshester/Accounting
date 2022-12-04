@@ -7,7 +7,7 @@ import {
     BelongsTo,
     AutoIncrement,
     Unique,
-    ForeignKey
+    ForeignKey, PrimaryKey
 } from "sequelize-typescript";
 import { DepartmentModel } from "../../department/models/department.model";
 import { DepartmentService } from "../../department/department.service";
@@ -16,10 +16,10 @@ import { DepartmentModule } from "../../department/department.module";
 @Table
 export class EmployeeModel extends Model{
 
-    @Column
     @AutoIncrement
     @Unique
-    @ForeignKey(() => DepartmentModel)
+    @PrimaryKey
+    @Column
     id: number;
 
     @Column
@@ -31,6 +31,7 @@ export class EmployeeModel extends Model{
     @Column
     post: string
 
+    @ForeignKey(() => DepartmentModel)
     @BelongsTo(() => DepartmentModel,'id')
-    departmentId: number;
+    departmentId: DepartmentModel;
 }

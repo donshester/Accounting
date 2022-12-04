@@ -1,12 +1,30 @@
-import { Column, Table, Model, HasMany, CreatedAt, HasOne } from "sequelize-typescript";
-import { EmployeeModel } from "../../employee/models/employee.model";
+import {
+    Column,
+    Table,
+    Model,
+    HasMany,
+    CreatedAt,
+    HasOne,
+    AutoIncrement,
+    Unique,
+    PrimaryKey, BelongsTo
+} from "sequelize-typescript";
 
+import { EmployeeModel } from "../../employee/models/employee.model";
 
 @Table
 export class DepartmentModel extends Model{
+
+    @AutoIncrement
+    @Unique
+    @PrimaryKey
+    @Column
+    id: number;
+
     @Column
     title: string;
 
+    @Unique
     @Column
     headId: number;
 
@@ -17,7 +35,6 @@ export class DepartmentModel extends Model{
     @Column
     departmentInfo: string;
 
-
-    @HasMany(() => EmployeeModel)
-    employees: EmployeeModel[];
+    @HasMany(() => EmployeeModel, "id")
+    employees?: EmployeeModel[];
 }
