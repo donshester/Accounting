@@ -1,38 +1,93 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post } from "@nestjs/common";
-import { CreateEmployeeDto } from "./dto/create-employee.dto";
-import { EmployeeService } from "./employee.service";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpException,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Post,
+  Query,
+  UseInterceptors,
+} from '@nestjs/common';
+import { CreateEmployeeDto } from './dto/create-employee.dto';
+import { EmployeeService } from './employee.service';
+import { EmployeeEntity } from './employee.entity';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('employee')
-export class EmployeeController{
+export class EmployeeController {
+  constructor(private readonly employeeService: EmployeeService) {}
 
-    constructor(private readonly employeeService: EmployeeService) {
+  @Get()
+  async getAll() {
+    let employees: EmployeeEntity[];
+    try {
+      employees = await this.employeeService.findAll();
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error: 'Forbidden',
+        },
+        HttpStatus.FORBIDDEN,
+        {
+          cause: error,
+        },
+      );
     }
+    return employees;
+  }
 
-    @Get()
-    getAll(){
-        return this.employeeService.findAll();
+  @UseInterceptors(FileInterceptor('file'))
+  @HttpCode(HttpStatus.CREATED)
+  @Post()
+  create(@Body() createEmployee: CreateEmployeeDto) {
+    return this.employeeService.create(createEmployee);
+  }
+
+  @Delete(':id')
+  async deleteEmployee(@Param('id', ParseIntPipe) id: number) {
+    try {
+      await this.employeeService.remove(id);
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'Not found',
+        },
+        HttpStatus.NOT_FOUND,
+        {
+          cause: error,
+        },
+      );
     }
+  }
 
-    @Post()
-    @HttpCode(HttpStatus.CREATED)
-    create(@Body() createEmployee: CreateEmployeeDto){
-        return this.employeeService.create(createEmployee);
+  @Get('/search')
+  search(@Query('query') query: string) {
+    return this.employeeService.search(query);
+  }
+
+  @Get('/:id')
+  async getOneEmployee(@Param('id', ParseIntPipe) id: number) {
+    let employee: EmployeeEntity;
+    try {
+      employee = await this.employeeService.getById(id);
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'Not found',
+        },
+        HttpStatus.NOT_FOUND,
+        {
+          cause: error,
+        },
+      );
     }
-
-
-    @Delete(':id')
-    deleteEmployee(@Param('id') id: number) {
-        return this.employeeService.remove(id);
-    }
-
-    @Get(':id')
-    getOneEmployee(@Param('id') id: number) {
-        return this.employeeService.getById(id);
-    }
-
-
-    @Get("last")
-    getLast(){
-        return this.employeeService.lastEmployees();
-    }
+    return employee;
+  }
 }

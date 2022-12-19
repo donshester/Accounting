@@ -1,47 +1,109 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { EmployeeEntity } from "./employee.entity";
-import { CreateEmployeeDto } from "./dto/create-employee.dto";
-import {DepartmentService} from "../department/department.service";
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { EmployeeEntity } from './employee.entity';
+import { CreateEmployeeDto } from './dto/create-employee.dto';
+import { DepartmentEntity } from '../department/department.enitity';
 
 @Injectable()
-export class EmployeeService{
-    @InjectRepository(EmployeeEntity)
-    private readonly repository: Repository<EmployeeEntity>;
+export class EmployeeService {
+  @InjectRepository(EmployeeEntity)
+  private readonly employeeRepository: Repository<EmployeeEntity>;
 
-    async findAll(): Promise<EmployeeEntity[]>{
-        return this.repository.find();
+  @InjectRepository(DepartmentEntity)
+  private readonly departmentRepository: Repository<DepartmentEntity>;
+
+  async findAll(): Promise<EmployeeEntity[]> {
+    return this.employeeRepository
+      .createQueryBuilder('employee')
+      .leftJoinAndSelect('employee.departmentId', 'department')
+      .leftJoinAndMapMany('employee.headOf', 'employee.headOf', 'headOf')
+      .getMany();
+  }
+
+  async create(employeeDto: CreateEmployeeDto): Promise<EmployeeEntity> {
+    let department: DepartmentEntity;
+    try {
+      department = await this.departmentRepository.findOneByOrFail({
+        id: employeeDto.departmentId,
+      });
+    } catch (error) {
+      throw new HttpException('Department not exist', HttpStatus.FORBIDDEN);
+    }
+    department.employeesCount++;
+    await this.departmentRepository.save(department);
+
+    let newEmployee: EmployeeEntity;
+    if (employeeDto.isHead == false) {
+      newEmployee = this.employeeRepository.create({
+        firstName: employeeDto.firstName,
+        surname: employeeDto.surname,
+        post: employeeDto.post,
+        departmentId: department,
+        headOf: null,
+      });
+    } else if (department.headEmployee == null && employeeDto.isHead == true) {
+      newEmployee = this.employeeRepository.create({
+        firstName: employeeDto.firstName,
+        surname: employeeDto.surname,
+        post: employeeDto.post,
+        departmentId: department,
+        headOf: department,
+      });
+    } else {
+      department.employeesCount--;
+      await this.departmentRepository.save(department);
+      throw new HttpException('Department has a head!', HttpStatus.FORBIDDEN);
     }
 
-    create(employeeDto: CreateEmployeeDto): Promise<EmployeeEntity> {
-        const newEmployee = new EmployeeEntity();
+    return await this.employeeRepository.save(newEmployee);
+  }
 
-        newEmployee.post = employeeDto.post;
-        newEmployee.surname = employeeDto.surname;
-        newEmployee.firstName = employeeDto.firstName;
+  async remove(id: number): Promise<void> {
+    const employee = await this.employeeRepository.findOne({
+      where: { id: id },
+      relations: { departmentId: true },
+    });
 
-        return this.repository.save(newEmployee);
+    const department = await this.departmentRepository.findOneBy({
+      id: employee.departmentId.id,
+    });
+
+    department.employeesCount--;
+
+    await this.departmentRepository.save(department);
+
+    try {
+      await this.employeeRepository.delete({ id: id });
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error: "You can't delete head of department!",
+        },
+        HttpStatus.FORBIDDEN,
+        {
+          cause: error,
+        },
+      );
     }
+  }
 
-    async getById(id: number): Promise<EmployeeEntity> {
-        return await this.repository.findOne( {
-            where: {
-            id: id,
-        }},)
-    }
+  async search(query: string): Promise<EmployeeEntity[]> {
+    return this.employeeRepository
+      .createQueryBuilder('employee')
+      .leftJoinAndSelect('employee.departmentId', 'department')
+      .leftJoinAndMapMany('employee.headOf', 'employee.headOf', 'headOf')
+      .where('employee.surname ILIKE :query', { query: `${query}%` })
+      .getMany();
+  }
 
-    async remove(id: number): Promise<void> {
-        await this.repository.delete({id:id });
-    }
-
-
-    async lastEmployees(): Promise<EmployeeEntity[]>{
-        return this.repository.find({
-                order:{
-                    "creationDate": "DESC"
-            }, take:5
-            })
-    }
-
+  async getById(id: number): Promise<EmployeeEntity> {
+    return this.employeeRepository
+      .createQueryBuilder('employee')
+      .leftJoinAndSelect('employee.departmentId', 'department')
+      .leftJoinAndMapMany('employee.headOf', 'employee.headOf', 'headOf')
+      .where('employee.id=:id', { id: id })
+      .getOneOrFail();
+  }
 }
