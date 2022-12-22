@@ -69,24 +69,18 @@ export class EmployeeService {
       id: employee.departmentId.id,
     });
 
+    if (
+      department.headEmployee.id === employee.id &&
+      department.employeesCount != 1
+    ) {
+      return alert('You need to delete all employees before you delete head!');
+    }
+
     department.employeesCount--;
 
     await this.departmentRepository.save(department);
 
-    try {
-      await this.employeeRepository.delete({ id: id });
-    } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.FORBIDDEN,
-          error: "You can't delete head of department!",
-        },
-        HttpStatus.FORBIDDEN,
-        {
-          cause: error,
-        },
-      );
-    }
+    await this.employeeRepository.delete({ id: id });
   }
 
   async search(query: string): Promise<EmployeeEntity[]> {

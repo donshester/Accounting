@@ -34,7 +34,7 @@ export class EmployeeEntity {
   @OneToOne(
     () => DepartmentEntity,
     (department: DepartmentEntity) => department.headEmployee,
-    {},
+    { nullable: true },
   )
   headOf: DepartmentEntity;
 

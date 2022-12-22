@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DepartmentEntity } from './department.enitity';
@@ -21,7 +26,13 @@ export class DepartmentService {
       employeesCount: 0,
       headEmployee: null,
     });
-    return this.departmentRepository.save(newDepartment);
+    try {
+      return await this.departmentRepository.save(newDepartment);
+    } catch (error) {
+      throw new UnprocessableEntityException(
+        'Department with such name is already exist!',
+      );
+    }
   }
 
   async getById(id: number): Promise<DepartmentEntity> {

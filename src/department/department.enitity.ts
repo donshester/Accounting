@@ -16,13 +16,18 @@ export class DepartmentEntity {
 
   @Column({
     type: 'varchar',
+    unique: true,
   })
   title: string;
 
   @OneToOne(
     () => EmployeeEntity,
     (employee: EmployeeEntity) => employee.headOf,
-    { eager: true },
+    {
+      eager: true,
+      nullable: true,
+      onDelete: 'CASCADE',
+    },
   )
   @JoinColumn()
   headEmployee: EmployeeEntity;
@@ -37,6 +42,8 @@ export class DepartmentEntity {
 
   @OneToMany(() => EmployeeEntity, (employee) => employee.departmentId, {
     eager: true,
+    nullable: true,
+    onDelete: 'CASCADE',
   })
   @JoinColumn()
   employees: EmployeeEntity[];
