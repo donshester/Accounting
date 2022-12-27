@@ -4,8 +4,9 @@ import {
   Delete,
   Get,
   HttpCode,
-  HttpException,
   HttpStatus,
+  InternalServerErrorException,
+  NotFoundException,
   Param,
   ParseIntPipe,
   Post,
@@ -23,32 +24,27 @@ export class DepartmentController {
 
   @Get()
   getAll() {
-    return this.departmentService.getAll();
+    try {
+      return this.departmentService.getAll();
+    } catch (error) {
+      throw new NotFoundException();
+    }
   }
 
   @HttpCode(HttpStatus.CREATED)
   @Post()
   @UseInterceptors(FileInterceptor('file'))
   create(@Body() createDepartment: CreateDepartmentDto) {
-    return this.departmentService.create(createDepartment);
+    try {
+      return this.departmentService.create(createDepartment);
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
   }
 
   @Delete(':id')
   async deleteDepartment(@Param('id') id: number) {
-    try {
-      await this.departmentService.remove(id);
-    } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.METHOD_NOT_ALLOWED,
-          error: 'Department need to have no employees to delete it!',
-        },
-        HttpStatus.METHOD_NOT_ALLOWED,
-        {
-          cause: error,
-        },
-      );
-    }
+    await this.departmentService.remove(id);
   }
 
   @Get(':id')
@@ -57,16 +53,7 @@ export class DepartmentController {
     try {
       department = await this.departmentService.getById(id);
     } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          error: 'Not found',
-        },
-        HttpStatus.NOT_FOUND,
-        {
-          cause: error,
-        },
-      );
+      throw new NotFoundException();
     }
     return department;
   }

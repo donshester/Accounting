@@ -13,13 +13,14 @@ export class DashboardService {
   private readonly departmentRepository: Repository<DepartmentEntity>;
 
   async lastEmployees(): Promise<EmployeeEntity[]> {
-    return this.employeeRepository
-      .createQueryBuilder('employee')
-      .leftJoinAndMapMany('employee.headOf', 'employee.headOf', 'headOf')
-      .leftJoinAndSelect('employee.departmentId', 'departmentId')
-      .orderBy('employee.creationDate', 'DESC')
-      .take(5)
-      .getMany();
+    return this.employeeRepository.find({
+      relations: {
+        departmentId: true,
+        headOf: true,
+      },
+      order: { creationDate: 'DESC' },
+      take: 5,
+    });
   }
 
   async topDepartments(): Promise<DepartmentEntity[]> {

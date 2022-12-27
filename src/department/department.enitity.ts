@@ -24,7 +24,6 @@ export class DepartmentEntity {
     () => EmployeeEntity,
     (employee: EmployeeEntity) => employee.headOf,
     {
-      eager: true,
       nullable: true,
       onDelete: 'CASCADE',
     },
@@ -41,7 +40,6 @@ export class DepartmentEntity {
   departmentInfo: string;
 
   @OneToMany(() => EmployeeEntity, (employee) => employee.departmentId, {
-    eager: true,
     nullable: true,
     onDelete: 'CASCADE',
   })

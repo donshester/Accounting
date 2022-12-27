@@ -1,6 +1,11 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { EmployeeEntity } from './employee.entity';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { DepartmentEntity } from '../department/department.enitity';
@@ -14,11 +19,12 @@ export class EmployeeService {
   private readonly departmentRepository: Repository<DepartmentEntity>;
 
   async findAll(): Promise<EmployeeEntity[]> {
-    return this.employeeRepository
-      .createQueryBuilder('employee')
-      .leftJoinAndSelect('employee.departmentId', 'department')
-      .leftJoinAndMapMany('employee.headOf', 'employee.headOf', 'headOf')
-      .getMany();
+    return this.employeeRepository.find({
+      relations: {
+        departmentId: true,
+        headOf: true,
+      },
+    });
   }
 
   async create(employeeDto: CreateEmployeeDto): Promise<EmployeeEntity> {
@@ -53,19 +59,24 @@ export class EmployeeService {
     } else {
       department.employeesCount--;
       await this.departmentRepository.save(department);
-      throw new HttpException('Department has a head!', HttpStatus.FORBIDDEN);
+      throw new HttpException('Department has a head!', HttpStatus.CONFLICT);
     }
 
     return await this.employeeRepository.save(newEmployee);
   }
 
   async remove(id: number): Promise<void> {
-    const employee = await this.employeeRepository.findOne({
-      where: { id: id },
-      relations: { departmentId: true },
-    });
+    let employee: EmployeeEntity;
+    try {
+      employee = await this.employeeRepository.findOneOrFail({
+        where: { id: id },
+        relations: { departmentId: true },
+      });
+    } catch (error) {
+      throw new NotFoundException();
+    }
 
-    const department = await this.departmentRepository.findOneBy({
+    const department = await this.departmentRepository.findOneByOrFail({
       id: employee.departmentId.id,
     });
 
@@ -84,20 +95,24 @@ export class EmployeeService {
   }
 
   async search(query: string): Promise<EmployeeEntity[]> {
-    return this.employeeRepository
-      .createQueryBuilder('employee')
-      .leftJoinAndSelect('employee.departmentId', 'department')
-      .leftJoinAndMapMany('employee.headOf', 'employee.headOf', 'headOf')
-      .where('employee.surname ILIKE :query', { query: `${query}%` })
-      .getMany();
+    return this.employeeRepository.find({
+      relations: {
+        departmentId: true,
+        headOf: true,
+      },
+      where: {
+        surname: ILike(`${query}%`),
+      },
+    });
   }
 
   async getById(id: number): Promise<EmployeeEntity> {
-    return this.employeeRepository
-      .createQueryBuilder('employee')
-      .leftJoinAndSelect('employee.departmentId', 'department')
-      .leftJoinAndMapMany('employee.headOf', 'employee.headOf', 'headOf')
-      .where('employee.id=:id', { id: id })
-      .getOneOrFail();
+    return this.employeeRepository.findOneOrFail({
+      where: { id: id },
+      relations: {
+        departmentId: true,
+        headOf: true,
+      },
+    });
   }
 }

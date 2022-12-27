@@ -1,8 +1,7 @@
 import {
-  HttpException,
-  HttpStatus,
+  ConflictException,
   Injectable,
-  UnprocessableEntityException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -29,9 +28,11 @@ export class DepartmentService {
     try {
       return await this.departmentRepository.save(newDepartment);
     } catch (error) {
-      throw new UnprocessableEntityException(
-        'Department with such name is already exist!',
-      );
+      if (error.code === '23505') {
+        throw new ConflictException(
+          'Department with this name is already exist!',
+        );
+      }
     }
   }
 
@@ -40,11 +41,25 @@ export class DepartmentService {
       where: {
         id: id,
       },
+      relations: {
+        headEmployee: true,
+        employees: true,
+      },
     });
   }
 
   async remove(id: number): Promise<void> {
-    await this.departmentRepository.delete({ id: id });
+    try {
+      await this.departmentRepository.delete({ id: id });
+    } catch (error) {
+      if (error.code === '23503') {
+        throw new ConflictException(
+          'Department must have no employees to delete it!',
+        );
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
   }
 
   async getAll(): Promise<DepartmentEntity[]> {
@@ -58,7 +73,7 @@ export class DepartmentService {
         id: id,
       });
     } catch (error) {
-      throw new HttpException('Department not exist', HttpStatus.FORBIDDEN);
+      throw new ConflictException('Department not exist');
     }
     department.employeesCount++;
     await this.departmentRepository.save(department);
@@ -83,7 +98,7 @@ export class DepartmentService {
     } else {
       department.employeesCount--;
       await this.departmentRepository.save(department);
-      throw new HttpException('Department has a head!', HttpStatus.FORBIDDEN);
+      throw new ConflictException('Department has a head!');
     }
 
     return await this.employeeRepository.save(newEmployee);

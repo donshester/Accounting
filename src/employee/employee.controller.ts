@@ -6,6 +6,8 @@ import {
   HttpCode,
   HttpException,
   HttpStatus,
+  InternalServerErrorException,
+  NotFoundException,
   Param,
   ParseIntPipe,
   Post,
@@ -53,16 +55,7 @@ export class EmployeeController {
     try {
       await this.employeeService.remove(id);
     } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          error: 'Not found',
-        },
-        HttpStatus.NOT_FOUND,
-        {
-          cause: error,
-        },
-      );
+      throw new InternalServerErrorException(error);
     }
   }
 
@@ -77,16 +70,7 @@ export class EmployeeController {
     try {
       employee = await this.employeeService.getById(id);
     } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          error: 'Not found',
-        },
-        HttpStatus.NOT_FOUND,
-        {
-          cause: error,
-        },
-      );
+      throw new NotFoundException(error);
     }
     return employee;
   }

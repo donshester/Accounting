@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, InternalServerErrorException } from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
 
 @Controller('dashboard')
@@ -7,11 +7,19 @@ export class DashboardController {
 
   @Get('/top_departments')
   getTopDepartments() {
-    return this.dashboardService.topDepartments();
+    try {
+      return this.dashboardService.topDepartments();
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
   }
 
   @Get('/last_employees')
   getLast() {
-    return this.dashboardService.lastEmployees();
+    try {
+      return this.dashboardService.lastEmployees();
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
   }
 }
