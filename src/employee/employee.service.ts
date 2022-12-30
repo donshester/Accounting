@@ -2,6 +2,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -27,15 +28,22 @@ export class EmployeeService {
     });
   }
 
-  async create(employeeDto: CreateEmployeeDto): Promise<EmployeeEntity> {
-    let department: DepartmentEntity;
-    try {
-      department = await this.departmentRepository.findOneByOrFail({
-        id: employeeDto.departmentId,
-      });
-    } catch (error) {
-      throw new HttpException('Department not exist', HttpStatus.FORBIDDEN);
-    }
+  async findDepartment(id: number): Promise<DepartmentEntity> {
+    return await this.departmentRepository.findOneOrFail({
+      where: {
+        id: id,
+      },
+      relations: {
+        headEmployee: true,
+        employees: true,
+      },
+    });
+  }
+
+  async create(
+    employeeDto: CreateEmployeeDto,
+    department: DepartmentEntity,
+  ): Promise<EmployeeEntity> {
     department.employeesCount++;
     await this.departmentRepository.save(department);
 
@@ -59,23 +67,13 @@ export class EmployeeService {
     } else {
       department.employeesCount--;
       await this.departmentRepository.save(department);
-      throw new HttpException('Department has a head!', HttpStatus.CONFLICT);
+      throw new InternalServerErrorException('Department has a head!');
     }
 
     return await this.employeeRepository.save(newEmployee);
   }
 
-  async remove(id: number): Promise<void> {
-    let employee: EmployeeEntity;
-    try {
-      employee = await this.employeeRepository.findOneOrFail({
-        where: { id: id },
-        relations: { departmentId: true },
-      });
-    } catch (error) {
-      throw new NotFoundException();
-    }
-
+  async remove(employee: EmployeeEntity): Promise<void> {
     const department = await this.departmentRepository.findOneByOrFail({
       id: employee.departmentId.id,
     });
@@ -91,7 +89,7 @@ export class EmployeeService {
 
     await this.departmentRepository.save(department);
 
-    await this.employeeRepository.delete({ id: id });
+    await this.employeeRepository.delete(employee);
   }
 
   async search(query: string): Promise<EmployeeEntity[]> {

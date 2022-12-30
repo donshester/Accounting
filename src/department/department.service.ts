@@ -32,6 +32,8 @@ export class DepartmentService {
         throw new ConflictException(
           'Department with this name is already exist!',
         );
+      } else {
+        throw new InternalServerErrorException();
       }
     }
   }
@@ -57,7 +59,7 @@ export class DepartmentService {
           'Department must have no employees to delete it!',
         );
       } else {
-        throw new InternalServerErrorException();
+        throw new InternalServerErrorException('Department cant be deleted!');
       }
     }
   }
@@ -73,7 +75,7 @@ export class DepartmentService {
         id: id,
       });
     } catch (error) {
-      throw new ConflictException('Department not exist');
+      throw new InternalServerErrorException('Department not exist');
     }
     department.employeesCount++;
     await this.departmentRepository.save(department);
@@ -98,7 +100,7 @@ export class DepartmentService {
     } else {
       department.employeesCount--;
       await this.departmentRepository.save(department);
-      throw new ConflictException('Department has a head!');
+      throw new InternalServerErrorException('Department has a head!');
     }
 
     return await this.employeeRepository.save(newEmployee);

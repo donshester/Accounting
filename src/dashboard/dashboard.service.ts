@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EmployeeEntity } from '../employee/employee.entity';
 import { Repository } from 'typeorm';
@@ -13,22 +13,30 @@ export class DashboardService {
   private readonly departmentRepository: Repository<DepartmentEntity>;
 
   async lastEmployees(): Promise<EmployeeEntity[]> {
-    return this.employeeRepository.find({
-      relations: {
-        departmentId: true,
-        headOf: true,
-      },
-      order: { creationDate: 'DESC' },
-      take: 5,
-    });
+    try {
+      return this.employeeRepository.find({
+        relations: {
+          departmentId: true,
+          headOf: true,
+        },
+        order: { creationDate: 'DESC' },
+        take: 5,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
   }
 
   async topDepartments(): Promise<DepartmentEntity[]> {
-    return await this.departmentRepository.find({
-      order: {
-        employeesCount: 'DESC',
-      },
-      take: 5,
-    });
+    try {
+      return await this.departmentRepository.find({
+        order: {
+          employeesCount: 'DESC',
+        },
+        take: 5,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
   }
 }

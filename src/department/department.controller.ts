@@ -2,10 +2,10 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
-  InternalServerErrorException,
   NotFoundException,
   Param,
   ParseIntPipe,
@@ -24,22 +24,22 @@ export class DepartmentController {
 
   @Get()
   getAll() {
-    try {
-      return this.departmentService.getAll();
-    } catch (error) {
-      throw new NotFoundException();
+    const departments = this.departmentService.getAll();
+    if (!departments) {
+      throw new NotFoundException('Departments not found!');
     }
+    return departments;
   }
 
   @HttpCode(HttpStatus.CREATED)
   @Post()
   @UseInterceptors(FileInterceptor('file'))
   create(@Body() createDepartment: CreateDepartmentDto) {
-    try {
-      return this.departmentService.create(createDepartment);
-    } catch (error) {
-      throw new InternalServerErrorException();
+    const department = this.departmentService.create(createDepartment);
+    if (!department) {
+      throw new ForbiddenException('Department was not created!');
     }
+    return department;
   }
 
   @Delete(':id')
@@ -60,7 +60,11 @@ export class DepartmentController {
   @Post(':id')
   @UseInterceptors(FileInterceptor('file'))
   createEmployee(
-    @Param('id', ParseIntPipe) id: number,
+    @Param(
+      'id',
+      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE }),
+    )
+    id: number,
     @Body() createEmployee: CreateEmployeeDto,
   ) {
     return this.departmentService.addEmployee(id, createEmployee);

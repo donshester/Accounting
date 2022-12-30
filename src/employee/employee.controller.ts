@@ -4,9 +4,7 @@ import {
   Delete,
   Get,
   HttpCode,
-  HttpException,
   HttpStatus,
-  InternalServerErrorException,
   NotFoundException,
   Param,
   ParseIntPipe,
@@ -25,20 +23,9 @@ export class EmployeeController {
 
   @Get()
   async getAll() {
-    let employees: EmployeeEntity[];
-    try {
-      employees = await this.employeeService.findAll();
-    } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.FORBIDDEN,
-          error: 'Forbidden',
-        },
-        HttpStatus.FORBIDDEN,
-        {
-          cause: error,
-        },
-      );
+    const employees = await this.employeeService.findAll();
+    if (!employees) {
+      throw new NotFoundException();
     }
     return employees;
   }
@@ -46,17 +33,29 @@ export class EmployeeController {
   @UseInterceptors(FileInterceptor('file'))
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  create(@Body() createEmployee: CreateEmployeeDto) {
-    return this.employeeService.create(createEmployee);
+  async create(@Body() createEmployee: CreateEmployeeDto) {
+    const department = await this.employeeService.findDepartment(
+      createEmployee.departmentId,
+    );
+    if (!department) {
+      throw new NotFoundException('Department not exist!');
+    }
+    await this.employeeService.create(createEmployee, department);
   }
 
   @Delete(':id')
-  async deleteEmployee(@Param('id', ParseIntPipe) id: number) {
-    try {
-      await this.employeeService.remove(id);
-    } catch (error) {
-      throw new InternalServerErrorException(error);
+  async deleteEmployee(
+    @Param(
+      'id',
+      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE }),
+    )
+    id: number,
+  ) {
+    const employee = await this.employeeService.getById(id);
+    if (!employee) {
+      throw new NotFoundException('Employee not found!');
     }
+    await this.employeeService.remove(employee);
   }
 
   @Get('/search')
@@ -70,7 +69,7 @@ export class EmployeeController {
     try {
       employee = await this.employeeService.getById(id);
     } catch (error) {
-      throw new NotFoundException(error);
+      throw new NotFoundException('Employee not found!');
     }
     return employee;
   }
