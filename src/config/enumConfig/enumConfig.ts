@@ -1,3 +1,3 @@
 export enum EnumConfig {
-    DATABASE='database'
+  DATABASE = 'database',
 }
