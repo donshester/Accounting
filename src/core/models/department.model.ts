@@ -4,13 +4,12 @@ import {
   Model,
   HasMany,
   CreatedAt,
-  HasOne,
-  AutoIncrement,
-  Unique,
   PrimaryKey,
   BelongsTo,
   DataType,
   Default,
+  ForeignKey,
+  AllowNull,
 } from 'sequelize-typescript';
 
 import { EmployeeModel } from './employee.model';
@@ -28,12 +27,6 @@ export class DepartmentModel extends Model<DepartmentModel> {
   })
   title: string;
 
-  @Unique
-  @Column({
-    allowNull: false,
-  })
-  headId: number;
-
   @Column
   @CreatedAt
   creationDate: Date;
@@ -41,6 +34,20 @@ export class DepartmentModel extends Model<DepartmentModel> {
   @Column
   departmentInfo: string;
 
-  @HasMany(() => EmployeeModel, 'id')
-  employees?: string[];
+  @ForeignKey(() => EmployeeModel)
+  @AllowNull(true)
+  @Column
+  headId: string;
+
+  @BelongsTo(() => EmployeeModel, {
+    onDelete: 'SET NULL',
+    foreignKey: 'headId',
+  })
+  head: EmployeeModel;
+
+  @HasMany(() => EmployeeModel, {
+    onDelete: 'RESTRICT',
+    foreignKey: 'departmentId',
+  })
+  employees: EmployeeModel[];
 }

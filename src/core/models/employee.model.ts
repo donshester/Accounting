@@ -16,6 +16,7 @@ export class EmployeeModel extends Model<EmployeeModel> {
   @Default(DataType.UUIDV4)
   @Column
   id: string;
+
   @Column
   firstName: string;
 
@@ -25,13 +26,10 @@ export class EmployeeModel extends Model<EmployeeModel> {
   @Column
   post: string;
 
-  @BelongsTo(() => DepartmentModel)
-  user: DepartmentModel;
-
   @ForeignKey(() => DepartmentModel)
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-  })
+  @Column
   departmentId: string;
+
+  @BelongsTo(() => DepartmentModel)
+  department: DepartmentModel;
 }
