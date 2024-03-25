@@ -5,9 +5,8 @@ import {
   SequelizeOptionsFactory,
 } from '@nestjs/sequelize';
 import { EnumConfig } from './enumConfig/enumConfig';
-import { DepartmentModel } from '../../department/models/department.model';
 import { Options } from 'sequelize';
-
+import models from '../models';
 @Injectable()
 export class SequelizeConfigService implements SequelizeOptionsFactory {
   constructor(private readonly configService: ConfigService) {}
@@ -23,7 +22,7 @@ export class SequelizeConfigService implements SequelizeOptionsFactory {
       username,
       password,
       database,
-      models: [DepartmentModel],
+      models: Object.values(models),
     };
   }
 }

@@ -1,18 +1,10 @@
-import {Module} from "@nestjs/common";
-import {SequelizeModule} from "@nestjs/sequelize";
-import {DepartmentModel} from "./models/department.model";
-import {DepartmentService} from "./department.service";
-import {DepartmentController} from "./department.controller";
-import { DepartmentProviders } from "./department.providers";
-
+import { Module } from '@nestjs/common';
+import { DepartmentService } from './department.service';
+import { DepartmentController } from './department.controller';
+import { DepartmentProviders } from './department.providers';
 
 @Module({
-    imports:[SequelizeModule.forFeature([DepartmentModel])],
-    providers:[DepartmentService, ...DepartmentProviders],
-    // exports: [DepartmentService],
-    controllers:[DepartmentController]
-
+  providers: [DepartmentService, ...DepartmentProviders],
+  controllers: [DepartmentController],
 })
-export class DepartmentModule{
-
-}
+export class DepartmentModule {}

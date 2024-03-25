@@ -34,8 +34,7 @@
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
     "sequelize": "^6.26.0",
-    "sequelize-typescript": "^2.1.5",
-    "sqlite3": "^5.1.2"
+    "sequelize-typescript": "^2.1.5"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
@@ -45,7 +44,7 @@
     "@types/jest": "28.1.8",
     "@types/node": "^16.0.0",
     "@types/pg": "^8.6.5",
-    "@types/sequelize": "^4.28.14",
+    "@types/sequelize": "^4.28.20",
     "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
