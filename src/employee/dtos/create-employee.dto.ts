@@ -1,4 +1,12 @@
-import { IsNotEmpty, IsString, IsUUID, Matches, MaxLength, MinLength } from "class-validator";
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class CreateEmployeeDto {
   @IsNotEmpty()
@@ -20,5 +28,6 @@ export class CreateEmployeeDto {
   readonly post: string;
 
   @IsUUID(4)
-  readonly departmentId: string;
+  @IsOptional()
+  readonly departmentId?: string;
 }
