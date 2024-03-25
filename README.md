@@ -34,6 +34,20 @@ $ npm install
 
 ## Running the app
 
+
+1.
+
+    ```bash
+    cd docker/postgres
+    ```
+
+2. 
+
+    ```bash
+    docker-compose up
+    ```
+3. Setup .env for project
+4. Run project
 ```bash
 # development
 $ npm run start
