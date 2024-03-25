@@ -1,10 +1,17 @@
 import { Module } from '@nestjs/common';
 import { DepartmentService } from './department.service';
 import { DepartmentController } from './department.controller';
-import { DepartmentProviders } from './department.providers';
+import { Repositories } from '../core/constants';
+import { DepartmentModel } from '../core/models/department.model';
 
 @Module({
-  providers: [DepartmentService, ...DepartmentProviders],
   controllers: [DepartmentController],
+  providers: [
+    DepartmentService,
+    {
+      provide: Repositories.DEPARTMENT,
+      useValue: DepartmentModel,
+    },
+  ],
 })
 export class DepartmentModule {}
